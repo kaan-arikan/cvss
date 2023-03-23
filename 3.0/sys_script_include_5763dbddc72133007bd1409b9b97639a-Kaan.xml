@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<unload unload_date="2023-03-23 21:58:43">
+<sys_script_include action="INSERT_OR_UPDATE">
+<access>package_private</access>
+<active>true</active>
+<api_name>sn_bootcamp.BootcampService</api_name>
+<caller_access/>
+<client_callable>false</client_callable>
+<description>5763dbddc72133007bd1409b9b97639a</description>
+<name>BootcampService</name>
+<script><![CDATA[var BootcampService = Class.create();
+BootcampService.prototype = {
+	initialize: function() {},
+	registerAttendee: function(bootcamp, firstName, lastName, email, password) {
+		if (gs.nil(bootcamp) || gs.nil(firstName) || gs.nil(lastName) || gs.nil(email) || gs.nil(password))
+			return;
+		
+		var userName = [firstName, lastName].join(".").toLowerCase();
+		var gr = new GlideRecord("sys_user");
+		gr.initialize();
+		gr.first_name = firstName;
+		gr.last_name = lastName;
+		gr.email = email;
+		gr.getElement('user_password').setDisplayValue(password);
+		gr.user_name = userName;
+		gr.company = '93d4ecfac0a8000b6294d71b733977fb'; //ServiceNow 
+		var userSysId = gr.insert();
+		if (userSysId) {
+
+			// Assign user to bootcamp
+			var grAttendee = new GlideRecord('sn_bootcamp_attendee');
+			grAttendee.bootcamp = bootcamp;
+			grAttendee.attendee = userSysId;
+			grAttendee.insert();
+
+			// Assign user to Bootcamp Attendee group
+			// '899298e50b2133007bd12c6317673a3d'
+			var groups = [];
+			groups.forEach(function(group) {
+				var grGroup = new GlideRecord('sys_user_grmember');
+				grGroup.user = userSysId;
+				grGroup.group = group;
+				grGroup.insert();
+			});
+
+			return userName;
+		} 
+	}, ;;;;
+
+	type: 'BootcampService'
+};]]></script>
+<sys_class_name>sys_script_include</sys_class_name>
+<sys_created_by>admin</sys_created_by>
+<sys_created_on>2019-05-20 16:59:11</sys_created_on>
+<sys_id>5763dbddc72133007bd1409b9b97639a</sys_id>
+<sys_mod_count>16</sys_mod_count>
+<sys_name>BootcampService</sys_name>
+<sys_package display_value="Bootcamp" source="sn_bootcamp">6e721098c7a133007bd1409b9b97639c</sys_package>
+<sys_policy>read</sys_policy>
+<sys_scope display_value="Bootcamp">6e721098c7a133007bd1409b9b97639c</sys_scope>
+<sys_update_name>sys_script_include_5763dbddc72133007bd1409b9b97639a</sys_update_name>
+<sys_updated_by>admin</sys_updated_by>
+<sys_updated_on>2021-11-15 00:34:18</sys_updated_on>
+</sys_script_include>
+</unload>
